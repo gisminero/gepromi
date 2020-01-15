@@ -57,7 +57,7 @@ class expediente(models.Model):
             print(("EL PROCEDIMIENTO NO TIENE FLUJO... "))
             return False
         tff_obj = self.env['tarea_flujo.flujo'].browse(bus.id)
-        print (("EL NOMBRE DEL PROCEDIMIENTO ES ;: " + tff_obj.name.name))
+        #print (("EL NOMBRE DEL PROCEDIMIENTO ES ;: " + tff_obj.name.name))
         # for inicial in ta_obj.lineflujo_ids:
         #     print(("INGRESA EN EL FOR"))
         #     if inicial.tarea_padre.tipo == '1':
@@ -89,7 +89,6 @@ class expediente(models.Model):
             for plant in rel:
                 print ((str(plant.id)))
                 ids_plantillas_rel.append(plant.id)
-        # print (("La lista de encontrados es: " + str(ids_plantillas_rel)))
         ids_plantillas_rel_str = ''
         for i in ids_plantillas_rel:
             if ids_plantillas_rel_str == '':
