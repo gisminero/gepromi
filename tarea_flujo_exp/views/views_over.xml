@@ -151,7 +151,8 @@
 
     <xpath expr="//button[@name='movimientos']"  position="after">
         <button name="movimientos" type="object" string="Historial de Tareas" context="{'id_activo': id, 'tipo_historia': 'tarea'}" class="btn-default"  attrs="{'invisible':[('state', '=', 'draft')]}"/>
-        <button name="proxima_tarea" type="object" string="Enviar ... " context="{'id_activo': id, 'vista_padre': 'form'}" class="oe_highlight"  attrs="{'invisible':[('state', '!=', 'active')]}"/>
+        <button name="proxima_tarea" type="object" string="Enviar ... " context="{'id_activo': id, 'vista_padre': 'form'}" class="oe_highlight"
+                attrs="{'invisible':[('state', '!=', 'active')]}"/>
     </xpath>
       </field>
     </record>
