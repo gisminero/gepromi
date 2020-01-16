@@ -72,6 +72,15 @@ class seguimiento(models.Model):
         seguimiento_lineas = fields.One2many('seguimiento_linea', 'seguimiento_id', 'Flujo Seguimiento Lineas', )
         _sql_constraints = [('exp_uniq_exp', 'unique(expediente_id)', 'El numero de Expediente para seguimientos por tareas')]
 
+        def ultima_linea_historial_tarea(self, expte_id):
+                seguimiento_obj = self.env['seguimiento']
+                seguimiento_obj = seguimiento_obj.search([('expediente_id', '=', expte_id)], limit=1)
+                tiene_lineas = False
+                for linea in seguimiento_obj.seguimiento_lineas:
+                        print (("ITERANDO LAS LINEAS DE SEGUIMIENTO"))
+                        tiene_lineas = True
+                return tiene_lineas
+
         def ingresa_tarea_actual(self, expte_id, tarea_actual_obj, tarea_proxima_obj):
                 # Parametros recibidos Expediente, tarea actual, tarea seleccionada por el usuario
                 # print(('-INGRESANDO LA TAREA ACTUAL, EN EL SEGUMIENTO DEL FLUJO DE TAREAS-->> ' + str(expte_id.name)))
@@ -104,8 +113,15 @@ class seguimiento(models.Model):
                         id_creado = self.create({'name': str(expte_id.name), 'expediente_id': expte_id.id})
                         # print (("EL IB DEL OBJETO CREADO ES:  " + str(id_creado.id)))
                         # print(("LA TAREA ACTUAL QUE LLEGA ES:  " + str(tarea_actual_obj)))
-                        # print(("LA TAREA SELECCIONADA POR EL USUARIO QUE LLEGA ES:  " + str(tarea_proxima_obj)))
-                        id_creado.write({'seguimiento_lineas': [(0, 0, {'tarea': tarea_proxima_obj.id,
+                        seguimiento_obj_lineas = self.ultima_linea_historial_tarea(expte_id.id)
+                        # print(("LA TAREA SELECCIONADA POR EL USUARIO QUE LLEGA ES:  " + str(
+                        #         tarea_proxima_obj) + " VALOR DE SEGUIMIENTO ES: " + str(seguimiento_obj_lineas)))
+                        tarea_a_ingresar_id = tarea_proxima_obj.id
+                        if seguimiento_obj_lineas == False:# and not tarea_proxima_obj
+                                # print (("Asignando la tarea actual como proxima..............."))
+                                #Significa que no hay lineas de seguimiento previas y se esta ingresando en el flujo
+                                tarea_a_ingresar_id = tarea_actual_obj.id
+                        id_creado.write({'seguimiento_lineas': [(0, 0, {'tarea': tarea_a_ingresar_id,
                                                                         'subproc': subproc_a_asignar,
                                                                         'observ_segui': expte_id.observ_pase})]})
                 return True
@@ -167,7 +183,7 @@ class expediente(models.Model):
             plazo_obj = self.env['notifica']
             plazo_obj_cant = plazo_obj.search_count([('expediente_id', '=', exp_id), ('state', '=', 'active')])
             # tarea_obj_prox = tarea_obj.browse([proxima_tarea_id])
-            print(("LA CANTIDAD DE PLAZOS ENCONTRADOS ACTIVOS, ES " + str(plazo_obj_cant)))
+            # print(("LA CANTIDAD DE PLAZOS ENCONTRADOS ACTIVOS, ES " + str(plazo_obj_cant)))
             if plazo_obj_cant > 0:
                 return False
             else:
@@ -257,7 +273,7 @@ class expediente(models.Model):
                         'estado_legal_actual': tarea_obj.browse([tarea_actual_new]).estado_legal.name})
                 elif tarea_obj_prox.tipo == '3':
                         #Archivar el expediente
-                        print(("ARCHIVANDO EÑ EXPEDIENTE #########################"))
+                        # print(("ARCHIVANDO EÑ EXPEDIENTE #########################"))
                         if not self.busca_plazos_activos(expte_obj.id):
                                 view = self.env.ref('sh_message.sh_message_wizard_false')
                                 view_id = view and view.id or False
@@ -565,6 +581,9 @@ class expediente(models.Model):
                 active_id_2 = self.env.context.get('id_activo')
                 expte_obj_2 = self.browse([active_id_2])
                 tarea_inicial_id = self.obtener_tarea_inicial(expte_obj_2.procedimiento_id.id)
+                user_id = self.env.user.id
+                depart_id = self.userdepart(user_id)
+                depart_user_obj = self.env['hr.department'].browse([depart_id])
                 tarea_obj = self.env['tarea.tarea']
                 seguimiento_obj = self.env['seguimiento']
                 if not tarea_inicial_id:
@@ -572,19 +591,25 @@ class expediente(models.Model):
                 else:
                         valor_en_flujo = True
                 tarea_obj_inicial = tarea_obj.browse([tarea_inicial_id])
-                #print(("LA TAREA INICIAL ES: " + tarea_obj_inicial.name))
-                if tarea_inicial_id:
-                        self.write({'en_flujo': valor_en_flujo, 'tarea_actual': tarea_inicial_id,
-                        'estado_legal_actual': unidecode(tarea_obj_inicial.estado_legal.name)})
-                        # seguimiento_obj.ingresa_tarea_actual(expte_obj_2, tarea_obj_inicial)
-                        seguimiento_obj.ingresa_tarea_actual(expte_obj_2, tarea_obj_inicial, tarea_obj_inicial)
+                # print(("EL NOMBRE DEL DEPARTAMENTO  ES: " + depart_user_obj.name))
+                if depart_user_obj.name == "Nube":
+                        # print (("INGRESANDO POR NUBE"))
+                        self.write({'en_flujo': False, 'tarea_actual': False,
+                                    'estado_legal_actual': False})
                 else:
-                        if self.existe_flujo(expte_obj_2.procedimiento_id.id):
-                                view = self.env.ref('sh_message.sh_message_wizard_false')
-                                view_id = view and view.id or False
-                                context = dict(self._context or {})
-                                context['message'] = 'No se encontro la tarea inicial del flujo de tareas: ' + expte_obj_2.procedimiento_id.name
-                                return {
+                        if tarea_inicial_id:
+                                print(("INGRESANDO POR TAREA INICIAL "))
+                                self.write({'en_flujo': valor_en_flujo, 'tarea_actual': tarea_inicial_id,
+                                'estado_legal_actual': unidecode(tarea_obj_inicial.estado_legal.name)})
+                                # seguimiento_obj.ingresa_tarea_actual(expte_obj_2, tarea_obj_inicial)
+                                seguimiento_obj.ingresa_tarea_actual(expte_obj_2, tarea_obj_inicial, tarea_obj_inicial)
+                        else:
+                                if self.existe_flujo(expte_obj_2.procedimiento_id.id):
+                                        view = self.env.ref('sh_message.sh_message_wizard_false')
+                                        view_id = view and view.id or False
+                                        context = dict(self._context or {})
+                                        context['message'] = 'No se encontro la tarea inicial del flujo de tareas: ' + expte_obj_2.procedimiento_id.name
+                                        return {
                                         'name': 'Error: Contactese con el Administrador',
                                         'type': 'ir.actions.act_window',
                                         'view_type': 'form',
@@ -594,7 +619,7 @@ class expediente(models.Model):
                                         'view_id': view.id,
                                         'target': 'new',
                                         'context': context,
-                                }
+                                        }
                 res = super(expediente, self).activar()
                 return res
 
@@ -611,7 +636,7 @@ class expediente(models.Model):
                 observaciones_new = self.env.context.get('observaciones_new')
                 depart_id = self.userdepart(user_id)
                 #Ingresa en flujo en la ultima tarea, que hizo salir al mismo del flujo-
-                print (("INSERTANDO EN EL FLUJO ... *** ... "))
+                # print (("INSERTANDO EN EL FLUJO ... *** ... "))
                 active_id = self.env.context.get('id_activo')
                 expte_obj = self.browse([active_id])
                 seguimiento_obj = self.env['seguimiento']
@@ -620,11 +645,16 @@ class expediente(models.Model):
                 #         if lineas.tarea.name != False:
                 #                 print (("SACANDO COSAS: " + unidecode(lineas.tarea.name)))
                 #Obtengo la ultima tarea, desde el historial de tareas.
+                if not seguimiento_obj_lineas:
+                         #El Documento no tiene historial de tareas.
+                         raise ValidationError(('No es correcto utilizar esta función. No hay historial de tareas. '
+                                                'Utilice la opción - Enviar - y seleccione tarea actual.'))
                 lineas = seguimiento_obj_lineas.seguimiento_lineas[0]
+                depart_id_ultima_tarea = lineas.tarea.departament_id.id
                 if lineas.tarea.name != False:
                         print (("SACANDO COSAS: " + unidecode(lineas.tarea.name)))
                         print(("Oficina de la tarea: " + unidecode(lineas.tarea.departament_id.name)))
-                if self.ubicacion_actual.id == lineas.tarea.departament_id.id:
+                if self.ubicacion_actual.id == depart_id_ultima_tarea:
                         #Si la ubicacion actual coincide con la oficina en la cual se ejecuta la tarea.
                         self.write({'en_flujo': True, 'tarea_actual': lineas.tarea.id, 'ubicacion_actual': lineas.tarea.departament_id.id})
                 else:
