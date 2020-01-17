@@ -440,7 +440,7 @@ class expediente(models.Model):
                 flujo_obj = self.env['tarea_flujo.flujo'].search([('name', '=', [proced_id])])
                 #print(("NO HAY FLUJO PARA ... " + expte_obj.procedimiento_id.name))
                 #SI NO HAY FLUJO O EL EXPEDIENTE TIENE UBICACION ACTUAL EN LA NUBE
-                if not flujo_obj or expte_obj.ubicacion_actual.name == "Nube":
+                if not flujo_obj or expte_obj.ubicacion_actual.name.lower() == "Nube".lower():
                         return self.enviar()
                 if flujo_obj:
                         # print(("SE ENCONTRO UN FLUJO CORRESPONDIENTE A " + expte_obj.procedimiento_id.name))
