@@ -71,7 +71,6 @@
             <separator string="Nuevo Plazo de Tiempo Asociado a Notificacion" colspan="4" states="draft"/>
             <separator string="Plazo de Tiempo Asociado a Notificacion" colspan="4" states="active"/>
              <group>
-
                   <field name="name"   nolabel="1" colspan="1"/>
                   <!--  attrs="{'readonly':[('state','!=', 'draft')]}"  -->
                     <button name="activar" type="object" states="draft" string="Validar"
@@ -81,8 +80,6 @@
                     context="{'id_activo': id}"   -->
                     <button name="recibir" type="object" states="active" string="Documentacion Recibida"
                     class="oe_highlight" context="{'id_activo': id}" confirm="Recibo documentacion relacionada con este plazo, para anexar al expediente." />
-
-
             </group>
         <group>
         <field name="id" invisible="1" />
