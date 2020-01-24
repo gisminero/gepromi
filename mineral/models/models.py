@@ -5,6 +5,7 @@ from odoo import models, fields, api
 
 class mineral(models.Model):
     _name = 'mineral'
+    _order = 'categoria asc'
 
     name = fields.Char('Nombre', required=True)
     categoria = fields.Selection([
