@@ -132,7 +132,7 @@
         </group>
 
 
-        <group col='4'>
+        <group >
             <field name="estado_legal_actual"/>
         </group>
 
