@@ -1,13 +1,15 @@
 <odoo>
   <data>
     <!-- explicit list view definition -->
-    <record model="ir.ui.view" id="plantilla.tarea_form3">
+    <record model="ir.ui.view" id="exped_digital.administrar">
       <field name="name">Plantillas Relacionadas Con la Tarea</field>
       <field name="model">expediente.expediente</field>
       <field name="inherit_id" ref="expediente.form"/>
       <field name="arch" type="xml">
         <xpath expr="//field[@name='observaciones']" position="after">
-            <button name="plantillas" type="object" string="Administrar Digitales" context="{'id_activo': id}"/>
+          <group>
+            <button name="administrar_digitales" type="object" string="Administrar Digitales" context="{'id_activo': id}"/>
+          </group>
         </xpath>
       </field>
     </record>
