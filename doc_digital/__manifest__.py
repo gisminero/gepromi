@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "GeProMi Expediente Digital",
+    'name': "GeProMi Documentacion Digital",
 
     'summary': """
-        Soporte del Expediente Digital.
+        La Documentacion Digital será soporte para el 
+        Expediente Digital.
         """,
 
     'description': """
