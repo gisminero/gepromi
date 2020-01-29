@@ -527,20 +527,27 @@ class plazo(models.Model):
         ###########################################
         # VERIFICAR SI EL USUARIO ACTUAL PERTENECE A LA MISMA OFICINA QUE LA TAREA A LA CUAL SE ENCUENTRA
         # ASOCIADO EL PLAZO
-        legal_list = []
-        user_id = self.env.user.id
-        expte_obj = self.browse([active_exp_id])
+        expte_obj = self.env['expediente.expediente'].browse([active_exp_id])
         depart_actual_expte_id = expte_obj.ubicacion_actual
-        depart_user_actual_id = self.userdepart(user_id)
-        # if not depart_user_actual_id:
-        #     print(("No hay oficina actual asignada."))
-        # if depart_user_actual_id != depart_actual_expte_id.id:
-        #     print(("No pertenece a la misma oficina que el expediente."))
-        #     raise ValidationError(
-        #         ('Solo puede acceder a esta informacion si el expediente se encuentra en la oficina.'))
-        # tarea_obj_plazos = self.env['tarea.tarea'].search([('id', '=', self.tarea_actual.id)]).plazos
-        # for plazo in tarea_obj_plazos:
-        #     legal_list.append(plazo.id)
+        tarea_actual_expte_id = expte_obj.tarea_actual
+        if depart_actual_expte_id != tarea_actual_expte_id.departament_id:
+            view = self.env.ref('sh_message.sh_message_wizard_false')
+            view_id = view and view.id or False
+            context = dict(self._context or {})
+            context[
+                'message'] = 'Solo podrá ingresar el plazo, cuando el documento sea recibido ' \
+                             'en la oficna a la cual está asociada la tarea.'
+            return {
+                'name': 'Informacion',
+                'type': 'ir.actions.act_window',
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': 'sh.message.wizard',
+                'views': [(view.id, 'form')],
+                'view_id': view.id,
+                'target': 'new',
+                'context': context,
+            }
         #########################################
         # print("LOS VALORES QUE TRAE: "  )
         # print("id PLAZO: "+ str(active_plazo_id))
