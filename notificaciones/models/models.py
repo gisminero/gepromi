@@ -524,6 +524,24 @@ class plazo(models.Model):
     def tarea_plazo_detalle(self):
         active_plazo_id = self.env.context.get('id_activo_plazo')
         active_exp_id = self.env.context.get('expediente_id_tarea')
+        ###########################################
+        # VERIFICAR SI EL USUARIO ACTUAL PERTENECE A LA MISMA OFICINA QUE LA TAREA A LA CUAL SE ENCUENTRA
+        # ASOCIADO EL PLAZO
+        legal_list = []
+        user_id = self.env.user.id
+        expte_obj = self.browse([active_exp_id])
+        depart_actual_expte_id = expte_obj.ubicacion_actual
+        depart_user_actual_id = self.userdepart(user_id)
+        # if not depart_user_actual_id:
+        #     print(("No hay oficina actual asignada."))
+        # if depart_user_actual_id != depart_actual_expte_id.id:
+        #     print(("No pertenece a la misma oficina que el expediente."))
+        #     raise ValidationError(
+        #         ('Solo puede acceder a esta informacion si el expediente se encuentra en la oficina.'))
+        # tarea_obj_plazos = self.env['tarea.tarea'].search([('id', '=', self.tarea_actual.id)]).plazos
+        # for plazo in tarea_obj_plazos:
+        #     legal_list.append(plazo.id)
+        #########################################
         # print("LOS VALORES QUE TRAE: "  )
         # print("id PLAZO: "+ str(active_plazo_id))
         # print("id EXP: " + str(active_exp_id))
