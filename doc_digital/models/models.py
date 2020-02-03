@@ -3,14 +3,23 @@ from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 from unidecode import unidecode
 
-class exped_digital_linea(models.Model):
-        _name = 'exped_digital_linea'
-        _order = "write_date desc"
+# class doc_digital_linea(models.Model):
+#         _name = 'doc_digital.linea'
+#         _order = "write_date desc"
+#
+#         name = fields.Char('Nombre', required=True)
+#         descrip = fields.Char('Descripcion', required=False)
+#         archivo = fields.Boolean('Activo', default=True)
 
 
-class exped_digital(models.Model):
-        _name = 'exped_digital'
+class doc_digital(models.Model):
+        _name = 'doc_digital'
         _order = "write_date desc"
+
+        name = fields.Char('Nombre', readonly=False, required=False)
+        descrip = fields.Char('Descripcion', required=False)
+        archivo = fields.Binary(string='Doc Digital', required=True, help='Subir documento PDF.')
+        expediente_id = fields.Many2one('expediente.expediente', 'Id Expediente', required=True)
 
         def _get_permiso_asignacion(self):
                 desired_group_name = self.env['res.groups'].search([('name', '=', 'Asignacion')])
@@ -22,8 +31,6 @@ class exped_digital(models.Model):
                         #print(("NOOO EL USUARIO SE ENCUENTRA HABILITADO INSERTAR EXPEDIENTES"))
                         return False
 
-        # recibido = fields.Boolean('Recibido', readonly=True, compute=_is_recept_doc, store=False)
-        name = fields.Char('Nombre Exped', readonly=True, store=True)
 
 class expediente(models.Model):
         _name = 'expediente.expediente'
@@ -80,16 +87,16 @@ class expediente(models.Model):
                 if plant_rel_proced_obj_cant > 0:
                         # NUEVO PASE A OFICINA
                         return {
-                                'name': "Plantillas Asociadas a la Tarea/Tramite",
+                                'name': "Documentos Digitales Asociados al Expediente",
                                 'view_mode': 'tree',
                                 # 'res_id': active_id,
                                 # 'view_id': self.env.ref('pase.form_enviar').id,
-                                'res_model': 'plantilla.vacia',
+                                'res_model': 'doc_digital',
                                 'type': 'ir.actions.act_window',
                                 # 'domain': [('ubicacion_actual', '=', env['expediente.expediente'].depart_user())],
                                 'domain': [('id', 'in', ids_plantillas)],
                                 'context': {'recibido': False, 'oficina_destino': False, 'observ_pase': ''},
-                                'views': [[self.env.ref('plantilla.vacia_list').id, "tree"]],
+                                'views': [[self.env.ref('doc_digital.list').id, "tree"]],
                                 'target': 'new',
                         }
                 else:
@@ -98,12 +105,12 @@ class expediente(models.Model):
                                 'view_mode': 'tree',
                                 # 'res_id': active_id,
                                 # 'view_id': self.env.ref('pase.form_enviar').id,
-                                'res_model': 'plantilla.vacia',
+                                'res_model': 'doc_digital',
                                 'type': 'ir.actions.act_window',
                                 # 'domain': [('ubicacion_actual', '=', env['expediente.expediente'].depart_user())],
                                 'domain': [('id', 'in', ids_plantillas)],
                                 'context': {'recibido': False, 'oficina_destino': False, 'observ_pase': ''},
-                                'views': [[self.env.ref('plantilla.vacia_list').id, "tree"]],
+                                'views': [[self.env.ref('doc_digital.list').id, "tree"]],
                                 'target': 'new',
                         }
                 return True

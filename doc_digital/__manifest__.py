@@ -29,7 +29,7 @@
     # always loaded
     'data': [
         'views/views_over.xml',
-        # 'views/views.xml',
+        'views/views.xml',
         # 'security/exped_person.xml',
         # 'security/ir.model.access.csv',
     ],
