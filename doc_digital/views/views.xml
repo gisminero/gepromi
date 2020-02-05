@@ -1,6 +1,41 @@
 <odoo>
   <data>
 
+    <record model="ir.ui.view" id="doc_digital.archivo_list">
+      <field name="name">Archivos Digitales</field>
+      <field name="model">doc_digital.archivo</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="archivo"/>
+          <field name="state"/>
+          <!-- <field name="archivos_id"/>-->
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="doc_digital.archivo_form">
+      <field name="name">Docuemtacion Digital</field>
+      <field name="model">doc_digital.archivo</field>
+      <field name="arch" type="xml">
+      <form string="Documentacion Digital" options="{'no_create_edit':True}">
+        <header>
+        </header>
+            <group>
+              <field name="name"/>
+              <field name="archivo"/>
+
+            </group>
+        <!--
+        <footer>
+		</footer>
+		-->
+      </form>
+      </field>
+    </record>
+
+
+
 
     <record model="ir.ui.view" id="doc_digital.list">
       <field name="name">Documentacion Digital</field>
@@ -9,11 +44,10 @@
         <tree>
             <field name="name"/>
           <field name="expediente_id"/>
-          <field name="archivo"/>
+          <!--<field name="archivos_id"/>-->
         </tree>
       </field>
     </record>
-
 
     <record model="ir.ui.view" id="doc_digital.form">
       <field name="name">Docuemtacion Digital</field>
@@ -25,10 +59,7 @@
             <group>
               <field name="name"/>
               <field name="expediente_id"/>
-
-              <!-- domain="[('department_id', '=', expediente_id.ubicacion_actual.id)]" -->
-              <field name="archivo" />
-
+              <field name="archivos_id" />
             </group>
         <!--
         <footer>
