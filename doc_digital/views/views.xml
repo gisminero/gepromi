@@ -5,7 +5,7 @@
       <field name="name">Archivos Digitales</field>
       <field name="model">doc_digital.archivo</field>
       <field name="arch" type="xml">
-        <tree>
+        <tree  >
           <field name="name"/>
           <field name="archivo"/>
           <field name="state"/>
@@ -20,10 +20,11 @@
       <field name="arch" type="xml">
       <form string="Documentacion Digital" options="{'no_create_edit':True}">
         <header>
+          <field name="state" widget="statusbar" statusbar_visible="draft,active"/>
         </header>
             <group>
-              <field name="name"/>
-              <field name="archivo"/>
+              <field name="name" attrs="{'readonly':[('state','!=', 'draft')]}" />
+              <field name="archivo" attrs="{'readonly':[('state','!=', 'draft')]}"/>
 
             </group>
         <!--
