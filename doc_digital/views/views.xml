@@ -5,7 +5,7 @@
       <field name="name">Archivos Digitales</field>
       <field name="model">doc_digital.archivo</field>
       <field name="arch" type="xml">
-        <tree  >
+        <tree  delete="false" >
           <field name="name"/>
           <field name="archivo"/>
           <field name="state"/>
@@ -18,19 +18,27 @@
       <field name="name">Docuemtacion Digital</field>
       <field name="model">doc_digital.archivo</field>
       <field name="arch" type="xml">
-      <form string="Documentacion Digital" options="{'no_create_edit':True}">
+      <form string="Documentacion Digital" >
         <header>
           <field name="state" widget="statusbar" statusbar_visible="draft,active"/>
         </header>
             <group>
+              <field name="id" />
               <field name="name" attrs="{'readonly':[('state','!=', 'draft')]}" />
               <field name="archivo" attrs="{'readonly':[('state','!=', 'draft')]}"/>
 
             </group>
-        <!--
         <footer>
+                     <button name="eliminar_linea" type="object" string="Eliminar" context="{'id_activo': id}" class="oe_highlight"
+                       attrs="{'invisible':[('state', '!=', 'draft')]}" />
+          <!-- attrs="{'invisible':[('recibir', '=', False), ('empleado_seg', '=', False)]}"  invisible="context.get('mostrar_recepcion',False)" -->
+
+                    <button name="guardar_linea" type="object" string="Guardar" class="oe_highlight" context="{'id_activo': id}"
+                    attrs="{'invisible':[('state', '!=', 'draft')]}"/>
+
+				 	<button string="Cancelar" class="btn-default" special="cancel" />
+				<!--	<button string="Ok" class="btn-default" name="reload_view" type="object"  /> -->
 		</footer>
-		-->
       </form>
       </field>
     </record>
@@ -44,7 +52,7 @@
       <field name="arch" type="xml">
         <tree>
             <field name="name"/>
-          <field name="expediente_id"/>
+            <field name="expediente_id"/>
           <!--<field name="archivos_id"/>-->
         </tree>
       </field>
@@ -54,12 +62,12 @@
       <field name="name">Docuemtacion Digital</field>
       <field name="model">doc_digital</field>
       <field name="arch" type="xml">
-      <form string="Documentacion Digital" options="{'no_create_edit':True}">
+      <form string="Documentacion Digital" create="false" >
         <header>
         </header>
             <group>
-              <field name="name"/>
-              <field name="expediente_id"/>
+              <field name="name" attrs="{'readonly':[('name','!=', 'siempre_readonly')]}" />
+              <field name="expediente_id" attrs="{'readonly':[('name','!=', 'siempre_readonly')]}" />
               <field name="archivos_id" />
             </group>
         <!--

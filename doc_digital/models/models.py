@@ -14,6 +14,15 @@ class doc_digital_archivo(models.Model):
                                  string='Estado', required=True, default="draft",
                                  help="Determina el estado del expediente")
 
+        def eliminar_linea(self):
+            self.unlink()
+            return True
+
+        def guardar_linea(self, vals):
+            super(doc_digital_archivo, self).write(vals)
+            return True
+
+
 class doc_digital(models.Model):
         _name = 'doc_digital'
         _order = "write_date desc"
@@ -22,6 +31,7 @@ class doc_digital(models.Model):
         descrip = fields.Char('Descripcion', required=False)
         expediente_id = fields.Many2one('expediente.expediente', 'Id Expediente', required=True)
         archivos_id = fields.One2many('doc_digital.archivo', 'doc_digital_id', string='Archivos Asociados')
+        _sql_constraints = [('exp_uniq_doc_digital', 'unique(expediente_id)', 'El panel de archivos asociados a un expediente debe ser único')]
 
         def _get_permiso_asignacion(self):
                 desired_group_name = self.env['res.groups'].search([('name', '=', 'Asignacion')])
@@ -75,6 +85,19 @@ class expediente(models.Model):
                                 # 'domain': [('ubicacion_actual', '=', env['expediente.expediente'].depart_user())],
                                 #'domain': [('id', 'in', ids_plantillas)],
                                 #'context': {'recibido': False, 'oficina_destino': False, 'observ_pase': ''},
+                                'views': [[self.env.ref('doc_digital.form').id, "form"]],
+                                'target': 'new',
+                        }
+                else:
+                        return {
+                                'name': "Documentos Digitales Asociados al Expediente",
+                                'view_mode': 'form',
+                                # 'res_id': doc_digital_obj[0].id,
+                                'res_model': 'doc_digital',
+                                'type': 'ir.actions.act_window',
+                                # 'domain': [('ubicacion_actual', '=', env['expediente.expediente'].depart_user())],
+                                #'domain': [('id', 'in', ids_plantillas)],
+                                'context': {'default_expediente_id': expte_obj.id, 'default_name': expte_obj.name},
                                 'views': [[self.env.ref('doc_digital.form').id, "form"]],
                                 'target': 'new',
                         }
