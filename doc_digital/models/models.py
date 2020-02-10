@@ -7,20 +7,50 @@ class doc_digital_archivo(models.Model):
         _name = 'doc_digital.archivo'
         _order = "id desc"
 
-        name = fields.Char('Nombre', required=True)
+        def _default_archivo_name(self):
+                nombre = "Archivo1.pdf"
+                return nombre
+
+        name = fields.Char('Nombre', required=True, default=_default_archivo_name)
         archivo = fields.Binary('Archivo', required=False)
-        doc_digital_id = fields.Many2one('hr.employee', string='Doc. Digital')
+        # archivo_name = fields.Char('Nombre Archivo', required=False)
+        doc_digital_id = fields.Many2one('doc_digital', string='Doc. Digital')
         state = fields.Selection([('draft', 'Borrador'), ('active', 'Activo'), ],
                                  string='Estado', required=True, default="draft",
                                  help="Determina el estado del expediente")
+        empleado_envia = fields.Many2one('hr.employee', 'Enviado por', readonly=True)
+
+        def reload_view(self):
+                action = {
+                        'type': 'ir.actions.client',
+                        'tag': 'reload',
+                }
+                return action
 
         def eliminar_linea(self):
-            self.unlink()
-            return True
+                print (("ELIMINAND0 LINEA"))
+                active_id = self.env.context.get('id_activo')
+                dda_obj = self.browse([active_id])
+                doc_digital_id = dda_obj.doc_digital_id
+                dda_obj.unlink()
+                print (("EL ID DE DOC DIGITAL ES: " + str(doc_digital_id.id)))
+                return {
+                        'name': "Documentos Digitales Asociados al Expediente",
+                        'view_mode': 'form',
+                        'res_id': doc_digital_id.id,
+                        # 'view_id': self.env.ref('pase.form_enviar').id,
+                        'res_model': 'doc_digital',
+                        'type': 'ir.actions.act_window',
+                        # 'domain': [('ubicacion_actual', '=', env['expediente.expediente'].depart_user())],
+                        # 'domain': [('id', 'in', ids_plantillas)],
+                        # 'context': {'recibido': False, 'oficina_destino': False, 'observ_pase': ''},
+                        'views': [[self.env.ref('doc_digital.form').id, "form"]],
+                        'target': 'current',  # 'target': 'new',
+                }
 
         def guardar_linea(self, vals):
-            super(doc_digital_archivo, self).write(vals)
-            return True
+                super(doc_digital_archivo, self).write(vals)
+                return True
 
 
 class doc_digital(models.Model):
@@ -43,6 +73,33 @@ class doc_digital(models.Model):
                         #print(("NOOO EL USUARIO SE ENCUENTRA HABILITADO INSERTAR EXPEDIENTES"))
                         return False
 
+        def user_emple(self, user_id):
+                num_empl = self.env['hr.employee'].search_count([('user_id', '=', [user_id])])
+                if num_empl < 1:
+                        print(("No se encuentra el empleado asociado al usuario: " + str(user_id)))
+                        return False
+                elif num_empl > 1:
+                        print(("Hay mas de un emplado asociado al usuario: " + str(user_id)))
+                        return False
+                else:
+                        empl_obj = self.env['hr.employee'].search([('user_id', '=', [user_id])])
+                        if empl_obj.id:
+                                return empl_obj.id
+                        else:
+                                return False
+
+        def activar_archivos(self):
+                print (("ACTIVANDO LOS ARCHIVOS ADJUNTOS EN EL EXPEDIENTE"))
+                active_id = self.env.context.get('id_activo')
+                doc_digital_obj = self.browse([active_id])
+                user_id = self.env.user.id
+                emple_id = self.user_emple(user_id)
+                print (("QUE TRAE DESDE EL :" + str(emple_id)))
+                for archivo in doc_digital_obj.archivos_id:
+                        if archivo.state == 'draft':
+                                archivo.write({'state':  'active', 'empleado_envia': emple_id})
+                        print(("NOMBRE DE ARCHIVO: " + str(archivo.name)))
+                return True
 
 class expediente(models.Model):
         _name = 'expediente.expediente'
@@ -86,7 +143,7 @@ class expediente(models.Model):
                                 #'domain': [('id', 'in', ids_plantillas)],
                                 #'context': {'recibido': False, 'oficina_destino': False, 'observ_pase': ''},
                                 'views': [[self.env.ref('doc_digital.form').id, "form"]],
-                                'target': 'new',
+                                'target': 'current', #'target': 'new',
                         }
                 else:
                         return {
@@ -99,6 +156,6 @@ class expediente(models.Model):
                                 #'domain': [('id', 'in', ids_plantillas)],
                                 'context': {'default_expediente_id': expte_obj.id, 'default_name': expte_obj.name},
                                 'views': [[self.env.ref('doc_digital.form').id, "form"]],
-                                'target': 'new',
+                                'target': 'current', #'target': 'new',
                         }
                 return True

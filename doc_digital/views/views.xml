@@ -6,10 +6,15 @@
       <field name="model">doc_digital.archivo</field>
       <field name="arch" type="xml">
         <tree  delete="false" >
+          <field name="id"/>
           <field name="name"/>
-          <field name="archivo"/>
+          <field name="archivo" filename="name" />
           <field name="state"/>
+          <field name="empleado_envia"/>
+
           <!-- <field name="archivos_id"/>-->
+          <button name="eliminar_linea" type="object" string="Eliminar" context="{'id_activo': id}" class="oe_highlight"
+                     attrs="{'invisible':[('state', '!=', 'draft')]}" />
         </tree>
       </field>
     </record>
@@ -19,26 +24,25 @@
       <field name="model">doc_digital.archivo</field>
       <field name="arch" type="xml">
       <form string="Documentacion Digital" >
-        <header>
+          <header>
           <field name="state" widget="statusbar" statusbar_visible="draft,active"/>
         </header>
             <group>
-              <field name="id" />
+
+              <field name="id" invisible="1" />
               <field name="name" attrs="{'readonly':[('state','!=', 'draft')]}" />
               <field name="archivo" attrs="{'readonly':[('state','!=', 'draft')]}"/>
-
             </group>
+        <!-- attrs="{'invisible':[('state', '!=', 'draft')]}" -->
+        <!--
         <footer>
-                     <button name="eliminar_linea" type="object" string="Eliminar" context="{'id_activo': id}" class="oe_highlight"
-                       attrs="{'invisible':[('state', '!=', 'draft')]}" />
-          <!-- attrs="{'invisible':[('recibir', '=', False), ('empleado_seg', '=', False)]}"  invisible="context.get('mostrar_recepcion',False)" -->
-
+                    <button name="eliminar_linea" type="object" string="Eliminar" context="{'id_activo': id}" class="oe_highlight"
+                      />
                     <button name="guardar_linea" type="object" string="Guardar" class="oe_highlight" context="{'id_activo': id}"
-                    attrs="{'invisible':[('state', '!=', 'draft')]}"/>
-
+                    />
 				 	<button string="Cancelar" class="btn-default" special="cancel" />
-				<!--	<button string="Ok" class="btn-default" name="reload_view" type="object"  /> -->
 		</footer>
+        -->
       </form>
       </field>
     </record>
@@ -64,16 +68,20 @@
       <field name="arch" type="xml">
       <form string="Documentacion Digital" create="false" >
         <header>
+
         </header>
             <group>
               <field name="name" attrs="{'readonly':[('name','!=', 'siempre_readonly')]}" />
               <field name="expediente_id" attrs="{'readonly':[('name','!=', 'siempre_readonly')]}" />
               <field name="archivos_id" />
             </group>
-        <!--
+
         <footer>
+            <button name="activar_archivos" type="object"  string="Validar" class="oe_highlight"
+                    confirm="Si confirma la validacion, no se podran modificar los archivos adjuntos existentes en el expediente."
+                    context="{'id_activo': id}"/>
 		</footer>
-		-->
+
       </form>
       </field>
     </record>
