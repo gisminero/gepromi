@@ -5,20 +5,40 @@ from unidecode import unidecode
 
 class doc_digital_archivo(models.Model):
         _name = 'doc_digital.archivo'
-        _order = "id desc"
+        _order = "id asc"
 
         def _default_archivo_name(self):
                 nombre = "Archivo1.pdf"
                 return nombre
 
-        name = fields.Char('Nombre', required=True, default=_default_archivo_name)
+        def user_emple(self, user_id):
+                num_empl = self.env['hr.employee'].search_count([('user_id', '=', [user_id])])
+                if num_empl < 1:
+                        print(("No se encuentra el empleado asociado al usuario: " + str(user_id)))
+                        return False
+                elif num_empl > 1:
+                        print(("Hay mas de un emplado asociado al usuario: " + str(user_id)))
+                        return False
+                else:
+                        empl_obj = self.env['hr.employee'].search([('user_id', '=', [user_id])])
+                        if empl_obj.id:
+                                return empl_obj.id
+                        else:
+                                return False
+
+        def _default_archivo_emple(self):
+                user_id = self.env.user.id
+                emple_id = self.user_emple(user_id)
+                return emple_id
+
+        name = fields.Char('Nombre', required=True, default=_default_archivo_name, readonly=True)
         archivo = fields.Binary('Archivo', required=False)
         # archivo_name = fields.Char('Nombre Archivo', required=False)
         doc_digital_id = fields.Many2one('doc_digital', string='Doc. Digital')
         state = fields.Selection([('draft', 'Borrador'), ('active', 'Activo'), ],
                                  string='Estado', required=True, default="draft",
                                  help="Determina el estado del expediente")
-        empleado_envia = fields.Many2one('hr.employee', 'Enviado por', readonly=True)
+        empleado_envia = fields.Many2one('hr.employee', 'Enviado por', readonly=True, default=_default_archivo_emple)
 
         def reload_view(self):
                 action = {
@@ -96,8 +116,8 @@ class doc_digital(models.Model):
                 emple_id = self.user_emple(user_id)
                 print (("QUE TRAE DESDE EL :" + str(emple_id)))
                 for archivo in doc_digital_obj.archivos_id:
-                        if archivo.state == 'draft':
-                                archivo.write({'state':  'active', 'empleado_envia': emple_id})
+                        if archivo.state == 'draft' and archivo.empleado_envia.id == emple_id:
+                                archivo.write({'state':  'active'})
                         print(("NOMBRE DE ARCHIVO: " + str(archivo.name)))
                 return True
 
@@ -117,6 +137,16 @@ class expediente(models.Model):
                 expte_obj = self.browse([active_id])
                 # tiene_flujo_asociado = self.tiene_flujo(expte_obj.procedimiento_id.id)
                 depart_actual_id = expte_obj.ubicacion_actual
+                #####################################
+                # depart_actual_expte_id = expte_obj.ubicacion_actual
+                depart_user_actual_id = self.userdepart(user_id)
+                if not depart_user_actual_id:
+                        print(("No hay oficina actual asignada."))
+                if depart_user_actual_id != depart_actual_id.id:
+                        print(("No pertenece a la misma oficina que el expediente."))
+                        raise ValidationError(
+                                ('Solo puede acceder a esta informacion si el expediente se encuentra en la oficina.'))
+                ################################
                 if not depart_actual_id:
                         print(("No hay oficina actual asignada."))
                 # CONSULTANDO PLANTILLAS PARA OFICINA Y TAREA ACTUAL

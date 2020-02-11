@@ -30,8 +30,8 @@
     'data': [
         'views/views_over.xml',
         'views/views.xml',
-        # 'security/exped_person.xml',
-        # 'security/ir.model.access.csv',
+        'security/doc_digital.xml',
+        'security/ir.model.access.csv',
     ],
     # only loaded in demonstration mode
     'demo': [
