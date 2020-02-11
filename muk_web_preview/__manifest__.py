@@ -56,7 +56,7 @@
         "python": [],
         "bin": [],
     },
-    "application": False,
+    "application": True,
     "installable": True,
     
 }

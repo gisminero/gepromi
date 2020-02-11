@@ -8,12 +8,14 @@
       <field name="sequence">10</field>
     </record>
 
+    <!--
    <record id="access_group_listado" model="res.groups">
      <field name="name">Listar Doc.</field>
      <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
      <field name="users" eval="[(4, ref('base.user_root'))]"/>
      <field name="category_id" ref="gestion_doc_digital"/>
     </record>
+    -->
 
     <record id="access_group_descarga" model="res.groups">
       <field name="name">Descargar Doc.</field>
