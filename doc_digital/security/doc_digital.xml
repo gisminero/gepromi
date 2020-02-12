@@ -19,7 +19,8 @@
 
     <record id="access_group_descarga" model="res.groups">
       <field name="name">Descargar Doc.</field>
-      <field name="implied_ids" eval="[(4, ref('access_group_listado'))]"/>
+      <!-- <field name="implied_ids" eval="[(4, ref('access_group_listado'))]"/> -->
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         <field name="category_id" ref="gestion_doc_digital"/>
     </record>
 

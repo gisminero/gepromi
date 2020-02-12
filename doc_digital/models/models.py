@@ -7,8 +7,8 @@ class doc_digital_archivo(models.Model):
         _name = 'doc_digital.archivo'
         _order = "id asc"
 
-        def _default_archivo_name(self):
-                nombre = "Archivo1.pdf"
+        def default_archivo_name(self):
+                nombre = "Adjunto.pdf"
                 return nombre
 
         def user_emple(self, user_id):
@@ -31,8 +31,8 @@ class doc_digital_archivo(models.Model):
                 emple_id = self.user_emple(user_id)
                 return emple_id
 
-        name = fields.Char('Nombre', required=True, default=_default_archivo_name, readonly=True)
-        archivo = fields.Binary('Archivo', required=False)
+        name = fields.Char('Nombre', required=True, default=default_archivo_name, readonly=True)
+        archivo = fields.Binary('Archivo', required=False, filters='*.png,*.gif')
         # archivo_name = fields.Char('Nombre Archivo', required=False)
         doc_digital_id = fields.Many2one('doc_digital', string='Doc. Digital')
         state = fields.Selection([('draft', 'Borrador'), ('active', 'Activo'), ],
