@@ -31,7 +31,7 @@
 
               <field name="id" invisible="1" />
               <field name="name" attrs="{'readonly':[('state','!=', 'draft')]}" />
-              <field name="archivo" attrs="{'readonly':[('state','!=', 'draft')]}"/>
+              <field name="archivo" attrs="{'readonly':[('state','!=', 'draft')]}" />
               <field name="empleado_envia" />
             </group>
         <!-- attrs="{'invisible':[('state', '!=', 'draft')]}" -->
@@ -81,8 +81,10 @@
             <button name="activar_archivos" type="object"  string="Validar" class="oe_highlight"
                     confirm="Si confirma la validacion, no se podran modificar los archivos adjuntos existentes en el expediente."
                     context="{'id_activo': id}"/>
+          <!--
           <button name="crear_union_pdf" type="object"  string="Descargar union de pdf" class="oe_highlight"
                     context="{'id_activo': id}"/>
+           -->
 		</footer>
 
       </form>

@@ -2,6 +2,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 from unidecode import unidecode
+# from PyPDF2 import PdfFileWriter, PdfFileReader
 
 class doc_digital_archivo(models.Model):
         _name = 'doc_digital.archivo'
@@ -32,7 +33,7 @@ class doc_digital_archivo(models.Model):
                 return emple_id
 
         name = fields.Char('Nombre', required=True, default=default_archivo_name, readonly=True)
-        archivo = fields.Binary('Archivo', required=False, filters='*.png,*.gif')
+        archivo = fields.Binary('Archivo', required=True, filters='*.png,*.gif')
         # archivo_name = fields.Char('Nombre Archivo', required=False)
         doc_digital_id = fields.Many2one('doc_digital', string='Doc. Digital')
         state = fields.Selection([('draft', 'Borrador'), ('active', 'Activo'), ],
@@ -48,12 +49,12 @@ class doc_digital_archivo(models.Model):
                 return action
 
         def eliminar_linea(self):
-                print (("ELIMINAND0 LINEA"))
+                # print (("ELIMINAND0 LINEA"))
                 active_id = self.env.context.get('id_activo')
                 dda_obj = self.browse([active_id])
                 doc_digital_id = dda_obj.doc_digital_id
                 dda_obj.unlink()
-                print (("EL ID DE DOC DIGITAL ES: " + str(doc_digital_id.id)))
+                # print (("EL ID DE DOC DIGITAL ES: " + str(doc_digital_id.id)))
                 return {
                         'name': "Documentos Digitales Asociados al Expediente",
                         'view_mode': 'form',
@@ -68,10 +69,47 @@ class doc_digital_archivo(models.Model):
                         'target': 'current',  # 'target': 'new',
                 }
 
-        def guardar_linea(self, vals):
-                super(doc_digital_archivo, self).write(vals)
+        @api.constrains('name')
+        def onchange_nombre(self):
+                nombre = self.name
+                nombre_array = nombre.split('.')
+                if len(nombre_array) > 2:
+                        raise ValidationError(('El nombre de archivo solo puede tener un punto.'))
+                if nombre_array[1] != 'pdf':
+                        raise ValidationError(('Solo se admiten archivos .pdf.'))
                 return True
 
+        @api.constrains('archivo')
+        def onchange_archivo(self):
+                # output = PdfFileWriter()
+                # input1 = PdfFileReader(open("document1.pdf", "rb"))
+                # output.addPage(input1.getPage(0))
+                # outputStream = open("PyPDF3-output.pdf", "wb")
+                # output.write(outputStream)
+                return True
+
+        def verify_sign(public_key_loc, signature, data):
+                '''
+                Verifies with a public key from whom the data came that it was indeed
+                signed by their private key
+                param: public_key_loc Path to public key
+                param: signature String signature to be verified
+                return: Boolean. True if the signature is valid; False otherwise.
+                fuente: https://gist.github.com/lkdocs/6519372
+                '''
+                from Crypto.PublicKey import RSA
+                from Crypto.Signature import PKCS1_v1_5
+                from Crypto.Hash import SHA256
+                from base64 import b64decode
+                pub_key = open(public_key_loc, "r").read()
+                rsakey = RSA.importKey(pub_key)
+                signer = PKCS1_v1_5.new(rsakey)
+                digest = SHA256.new()
+                # Assumes the data is base64 encoded to begin with
+                digest.update(b64decode(data))
+                if signer.verify(digest, b64decode(signature)):
+                        return True
+                return False
 
 class doc_digital(models.Model):
         _name = 'doc_digital'
