@@ -13,10 +13,10 @@
                 <field name="name" domain="[('active', '=', True)]" />
                 <button name="obtener_id" type="object"  string="Editar Flujo"
                     class="oe_highlight" context="{'id_activo': name}"/>
-
-
-                <!--<button name="exportar" type="object"  string="Exportar"
-                    class="oe_highlight" context="{'id_activo': id}"/>-->
+                <button name="exportar" type="object"  string="Exportar"
+                    class="oe_highlight" context="{'id_activo': id}"/>
+                <field name="csvfilename" invisible="1"/>
+                <field name="filebinary" filename="csvfilename"/>
             </group>
         <field name="lineflujo_ids" nolabel="1" colspan="1">
             <tree string="Flujo de Tareas" editable="bottom">
@@ -27,7 +27,6 @@
 
             </tree>
         </field>
-        <field name="observaciones"/>
         </form>
       </field>
     </record>
@@ -44,7 +43,7 @@
                 </tree>
 
             </field>
-            <field name="observaciones"/>
+<!--            <field name="observaciones"/>-->
         </record>
 
 

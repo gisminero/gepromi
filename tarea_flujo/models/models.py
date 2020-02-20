@@ -3,6 +3,9 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 from odoo.exceptions import Warning
+from unidecode import unidecode
+import csv
+import base64
 
 class flujolinea(models.Model):
     _name = 'tarea_flujo.flujolinea'
@@ -22,7 +25,7 @@ class flujolinea(models.Model):
                 s=1+0
             return s
 
-#    @api.constrains()
+
     def tareaSusp(self,tareap_id):
         tar = self.env['tarea.tarea'].browse(tareap_id)
         if tar!= False:
@@ -37,7 +40,7 @@ class flujolinea(models.Model):
                  return {'value':{'tarea_padre':tareap_id}}
 
     ls=[]
-#    @api.constrains()
+
     @api.depends('ls')
     def tareaInicial(self, tarea_id,tareapadre_id):
         sp=self.suspendeflujo(tarea_id)
@@ -70,8 +73,8 @@ class flujolinea(models.Model):
                             lista.append([tareapadre_id,tarea_id])
                             print("El valor de lista:" + str(lista))
                             tareahijo = self.env['tarea.tarea'].browse(tarea_id)
-                            if tareahijo.tipo == '3':
-                                j=len(lista)
+                            j=len(lista)
+                            if (tareahijo.tipo == '3' or j==3):
                                 print("J ES: "+ str(j))
                                 i=0
                                 while j>0:
@@ -92,10 +95,13 @@ class flujolinea(models.Model):
 class flujo(models.Model):
     _name = 'tarea_flujo.flujo'
     _description = 'Flujo de Tareas'
+
     name = fields.Many2one('procedimiento.procedimiento', 'Procedimiento', copy=False, required=True, help="""Luego de seleccionar Procedimiento, PRESIONAR el botón "Editar Flujo""""")
+    csvfilename = fields.Char('Informe', readonly=True)
+    filebinary = fields.Binary(string=' ', required=False, help='Permite descargar los procesos en CSV')
     lineflujo_ids = fields.One2many('tarea_flujo.flujolinea', 'flujo_id', 'Flujo Lines',)
     _sql_constraints =[('name_uniq', 'unique(name)', 'El flujo debe ser ùnico para cada tràmite')]
-    observaciones = fields.Text(string='Observaciones', translate=True)
+
 
     proc_ini=0
     def obtener_id(self):
@@ -109,32 +115,62 @@ class flujo(models.Model):
         proc_ini=procedim.iniciado
 
     def crear_archivo(self,dic):
-        newfile= open("archivo_flujo","w")
-        print("El archivo se ha creado")
+#        newfile= open('/opt/odoo/server/addonsgis/tarea_flujo/models/filedatos.csv','wb')
+        with open('/opt/odoo/server/addonsgis/tarea_flujo/models/filedatos.csv','wb') as newfile:
+            fieldnames=[['CODIGO'],['ORIGEN'],['CODIGO'],['DESTINO'],['CONDICIONES']]
+            archivo=csv.writer(newfile)
+            archivo.writerow(fieldnames)
+            for row in dic:
+                archivo.writerow(unicode (row))
+        print("EL ARCHIVO FUE CREADO")
+        descarga=self.generate_file()#llama a la función que descargará el archivo
+
+
+    @api.one
+    def generate_file(self,):
+        full_path = '/opt/odoo/server/addonsgis/tarea_flujo/models/filedatos.csv'
+        f = open(full_path, 'rb')
+        content=f.read().encode('base64')
+        return self.write({
+            'csvfilename':'Descargar.csv',
+            'filebinary':unicode(content)
+            })
+
+
+#    def mostrar_archivo(self):
+
+#        newfile= open('/opt/odoo/server/addonsgis/tarea_flujo/models/filedatos.csv','rb')
+#        with open('/opt/odoo/server/addonsgis/tarea_flujo/models/filedatos.csv','rb') as newfile:
+#            readfile=csv.reader(newfile,delimiter=',',quotechar=',',quoting=csv.QUOTE_MINIMAL)
+#            for row in readfile:
+#                print(unicode (row))
+#        print("LISTO")
 
     def exportar(self):
         active_id = self.env.context.get('id_activo')
         datexp = self.env['tarea_flujo.flujolinea'].search([('flujo_id', '=', active_id)])
+#        print("DATAEXP:"+ str(datexp))
         diccionario={}
-        lista=[]
+        flujostareas=[]
         for row in datexp:
             dest=row.tarea_padre.id
             orig=row.tarea.id
             cond=row.descrip
-            lista.append([dest,orig,cond])
-        for i in range(len(lista)):
-            indice=i
-            flujo=lista[indice]
-            lista1=[]
+            flujostareas.append([dest,orig,cond])
+#            print("LISTA:"+ str(flujostareas))
+        for i in range(len(flujostareas)):
+            flujo=flujostareas[i]
+#            print("FLUJO:"+ str(flujo))
+            lista=[]
             for j in range(len(flujo)-1):
-                indice1=j
-                valor=flujo[indice1]
+                valor=flujo[j]
                 ident=self.env['tarea.tarea'].search([('id', '=',valor)])
+                cod=ident.codigo
                 dato=ident.name
-                lista1.append(dato)
-            lista1.append(flujo[len(flujo)-1])
-            diccionario[indice]=lista1
-        print("Diccionario:" + str(diccionario))
-        archivo=self.crear_archivo(diccionario)
-#        newfile= open("archivo_flujo","w")
-#        print("El archivo se ha creado")
+                lista.append(cod)# agrega el código de Tarea
+                lista.append(dato) # agrega campos: origen, destino
+            lista.append(flujo[len(flujo)-1]) # agrego a la lista el campo condiciones
+            diccionario[i]=lista
+            datosflujo=diccionario.values()
+        generarfile= self.crear_archivo(datosflujo)
+        #ver_archivo=self.mostrar_archivo()
