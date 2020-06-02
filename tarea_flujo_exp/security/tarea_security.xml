@@ -63,6 +63,24 @@
     <field name="category_id" ref="tarea_flujo_exp.seguimiento"/>
     </record>
 
+
+
+<!-- REALIZAR ROLLBACK DE CAMINO DE TAREAS -->
+       <record model="ir.module.category" id="module_management_vuelve_movimiento" >
+      <field name="name">GeProMi.Volver Movimiento</field>
+      <field name="description">Vuelve hacia atras el ultimo movimiento tarea y oficina.</field>
+      <field name="sequence">12</field>
+    </record>
+
+   <record id="access_group_vuelve_movimiento_si" model="res.groups">
+     <field name="name">Autorizado</field>
+     <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+     <field name="users" eval="[(4, ref('base.user_root'))]"/>
+     <field name="category_id" ref="module_management_vuelve_movimiento"/>
+    </record>
+<!-- REALIZAR ROLLBACK DE CAMINO DE TAREAS -->
+
+
 </odoo>
 
 

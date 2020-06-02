@@ -81,6 +81,73 @@ class seguimiento(models.Model):
                         tiene_lineas = True
                 return tiene_lineas
 
+        def pase_ofic_correctivo(self, id_exp, id_ofic_actual, id_ofic_destino):
+                user_id = self.env.user.id
+                # print ((" CONTEXTO ACTIVANDO ... : " + str(self.env.context)))
+                expte_obj = self.env['expediente.expediente'].browse(id_exp)
+                pase_obj = self.env['pase.pase']
+                pase_obj.create({'folios': expte_obj.folios, 'user_origen_id': user_id,
+                                'user_recep_id': user_id,
+                                'name': str(expte_obj.name), 'expediente_id': id_exp,
+                                'depart_origen_id': id_ofic_actual,
+                                'depart_destino_id': id_ofic_destino,
+                                'fecha_hora_recep': fields.datetime.now(),
+                                'observ_pase': 'Pase Correctivo'})
+                        # self._cr.execute("""INSERT INTO public.pase_pase(
+                        # folios, user_origen_id, name, expediente_id,
+                        # depart_origen_id, depart_destino_id, fecha_hora_envio)
+                        # VALUES (1, %s, '%s', %s, %s, %s);"""
+                        # % (user_id, expte_obj.name, active_id,
+                        # depart_id, depart_id, ))
+                expte_obj.write({'state': "active", "recibido": True})
+                return True
+
+        def obj_ultima_linea_historial_tarea(self, expte_id):
+                #Es llamado por el procedimiento que elimina la ultima tarea cargada por error return_tarea
+                seguimiento_obj = self.env['seguimiento']
+                seguimiento_obj = seguimiento_obj.search([('expediente_id', '=', expte_id)], limit=1)
+                tiene_lineas = False
+                for linea in seguimiento_obj.seguimiento_lineas:
+                        print (("ITERANDO LAS LINEAS DE SEGUIMIENTO"))
+                        tiene_lineas = linea
+                        break
+                return tiene_lineas
+
+        def elimna_seguimiento_linea(self, id_eliminar):
+                linea_seguimiento = self.env['seguimiento_linea'].browse(id_eliminar)
+                linea_seguimiento.unlink()
+                return True
+
+        def return_tarea(self):
+                # Buscar la ultima  linea de tarea
+                # ir a seguimiento_linea y borrar la linea segun el id traido
+                # Buscar la ultima nueva linea, usar el mismo procedimiento anteriormente usado
+                # acceder a la tarea, observar en que oficina debe estar
+                # Asignar al expediente la oficina que se corresponde con la tarea en cuestion
+                ultima_linea = self.obj_ultima_linea_historial_tarea(self.expediente_id.id)
+                print(("ELIMINANDO ULTIMO PASE"))
+                print(("TAREA: " + ultima_linea.tarea.name))
+                print(("TAREA ID: " + str(ultima_linea.id)))
+                # print((str(ultima_linea.tarea.name)))
+                if self.elimna_seguimiento_linea(ultima_linea.id):
+                        ultima_linea = self.obj_ultima_linea_historial_tarea(self.expediente_id.id)
+                else:
+                        print (("OCURRIO UN ERROR AL ELIMINAR"))
+                        return False
+                print(("NUEVA TAREA: " + ultima_linea.tarea.name))
+                print(("NUEVA TAREA ID: " + str(ultima_linea.id)))
+                obj_tarea_selecc = self.env['tarea.tarea'].browse(ultima_linea.tarea.id)
+                print (("NUEVA OFICINA QUE DEBE SER ASIGNADA A EXPEDIENTE: " + obj_tarea_selecc.departament_id.name))
+                expte_obj = self.env['expediente.expediente'].browse(self.expediente_id.id)
+                id_ubicacion_actual = expte_obj.ubicacion_actual.id
+                expte_obj.write({'estado_legal_actual': obj_tarea_selecc.estado_legal.id,
+                                 "ubicacion_actual": obj_tarea_selecc.departament_id.id,
+                                 "oficina_destino": False,
+                                 "tarea_actual": obj_tarea_selecc.id})
+                if id_ubicacion_actual != obj_tarea_selecc.departament_id.id:
+                        self.pase_ofic_correctivo(expte_obj.id, id_ubicacion_actual, obj_tarea_selecc.departament_id.id)
+                return True
+
         def ingresa_tarea_actual(self, expte_id, tarea_actual_obj, tarea_proxima_obj):
                 # Parametros recibidos Expediente, tarea actual, tarea seleccionada por el usuario
                 # print(('-INGRESANDO LA TAREA ACTUAL, EN EL SEGUMIENTO DEL FLUJO DE TAREAS-->> ' + str(expte_id.name)))

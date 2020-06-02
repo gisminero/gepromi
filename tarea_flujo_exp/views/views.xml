@@ -44,7 +44,19 @@
                   <field name="subproc" />
                 </tree>
               </field>
-            </group>
+        </group>
+        <group>
+              <button string="Volver Atras Ultimo Movimiento" class="btn-default" name="return_tarea" type="object"
+                  confirm="Vuelve hacia atras el ultimo movimiento tarea y oficina. Se elimina el ultimo registro de tarea. Desea continuar?"
+                    groups="tarea_flujo_exp.access_group_vuelve_movimiento_si"
+                       />
+        </group>
+                  <!--
+
+                    -->
+
+
+
       </form>
       </field>
     </record>
