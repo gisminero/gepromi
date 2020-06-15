@@ -50,6 +50,10 @@
                   confirm="Vuelve hacia atras el ultimo movimiento tarea y oficina. Se elimina el ultimo registro de tarea. Desea continuar?"
                     groups="tarea_flujo_exp.access_group_vuelve_movimiento_si"
                        />
+              <button string="Reiniciar y Volver a Departamento Nube" class="btn-default" name="return_nube" type="object"
+                  confirm="Se eliminan todos los registros de tareas recorridas y vueve el expediente a Departamento Nube. Desea continuar?"
+                    groups="tarea_flujo_exp.access_group_vuelve_movimiento_si"
+                       />
         </group>
                   <!--
 

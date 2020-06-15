@@ -113,7 +113,7 @@ class seguimiento(models.Model):
                         break
                 return tiene_lineas
 
-        def elimna_seguimiento_linea(self, id_eliminar):
+        def elimina_seguimiento_linea(self, id_eliminar):
                 linea_seguimiento = self.env['seguimiento_linea'].browse(id_eliminar)
                 linea_seguimiento.unlink()
                 return True
@@ -125,17 +125,16 @@ class seguimiento(models.Model):
                 # acceder a la tarea, observar en que oficina debe estar
                 # Asignar al expediente la oficina que se corresponde con la tarea en cuestion
                 ultima_linea = self.obj_ultima_linea_historial_tarea(self.expediente_id.id)
-                print(("ELIMINANDO ULTIMO PASE"))
+                #print(("ELIMINANDO ULTIMO PASE"))
                 print(("TAREA: " + ultima_linea.tarea.name))
                 print(("TAREA ID: " + str(ultima_linea.id)))
                 # print((str(ultima_linea.tarea.name)))
-                if self.elimna_seguimiento_linea(ultima_linea.id):
+                if self.elimina_seguimiento_linea(ultima_linea.id):
                         ultima_linea = self.obj_ultima_linea_historial_tarea(self.expediente_id.id)
                 else:
                         print (("OCURRIO UN ERROR AL ELIMINAR"))
                         return False
                 print(("NUEVA TAREA: " + ultima_linea.tarea.name))
-                print(("NUEVA TAREA ID: " + str(ultima_linea.id)))
                 obj_tarea_selecc = self.env['tarea.tarea'].browse(ultima_linea.tarea.id)
                 print (("NUEVA OFICINA QUE DEBE SER ASIGNADA A EXPEDIENTE: " + obj_tarea_selecc.departament_id.name))
                 expte_obj = self.env['expediente.expediente'].browse(self.expediente_id.id)
@@ -146,6 +145,46 @@ class seguimiento(models.Model):
                                  "tarea_actual": obj_tarea_selecc.id})
                 if id_ubicacion_actual != obj_tarea_selecc.departament_id.id:
                         self.pase_ofic_correctivo(expte_obj.id, id_ubicacion_actual, obj_tarea_selecc.departament_id.id)
+                return True
+
+        def eliminar_lineas_seguimiento(self, expte_id):
+                #Es llamado por el procedimiento que elimina la ultima tarea cargada por error return_tarea
+                seguimiento_obj = self.env['seguimiento']
+                seguimiento_obj = seguimiento_obj.search([('expediente_id', '=', expte_id)])
+                for linea in seguimiento_obj.seguimiento_lineas:
+                    print(("Eliminando linea de seguimiento *** "))
+                    if self.elimina_seguimiento_linea(linea.id):
+                        continue
+                    else:
+                        raise ValidationError(('No se pudo eliminar linea de seguimiento'))
+                return True
+
+        def buscar_nube(self):
+                #Es llamado por el procedimiento que elimina la ultima tarea cargada por error return_tarea
+                departamento_obj = self.env['hr.department']
+                nube_obs = departamento_obj.search([('name', '=', 'Nube')])
+                print (('QUE ENCONTRE: ' + str(nube_obs[0].id) + ' - ' + nube_obs[0].name))
+                if nube_obs:
+                    return nube_obs[0].id
+                else:
+                    return False
+
+        def return_nube(self):
+                # Eliminar Tareas
+                # Posicionar el Expediente en Nube
+                print(("BUSCANDO A NUBE"))
+                nube_id = self.buscar_nube()
+                expte_obj = self.env['expediente.expediente'].browse(self.expediente_id.id)
+                id_ubicacion_actual = expte_obj.ubicacion_actual.id
+                expte_obj.write({'estado_legal_actual': "",
+                                 "ubicacion_actual": nube_id,
+                                 "oficina_destino": False,
+                                 "tarea_actual": False,
+                                 "state": "draft",
+                                 "en_flujo": False})
+                if id_ubicacion_actual != nube_id:
+                    self.pase_ofic_correctivo(expte_obj.id, id_ubicacion_actual, nube_id)
+                self.eliminar_lineas_seguimiento(expte_obj.id)
                 return True
 
         def ingresa_tarea_actual(self, expte_id, tarea_actual_obj, tarea_proxima_obj):
@@ -715,7 +754,11 @@ class expediente(models.Model):
                 if not seguimiento_obj_lineas:
                          #El Documento no tiene historial de tareas.
                          raise ValidationError(('No es correcto utilizar esta función. No hay historial de tareas. '
-                                                'Utilice la opción - Enviar - y seleccione tarea actual.'))
+                                                'Haga click en - Enviar - luego seleccione la tarea actual'))
+                if not seguimiento_obj_lineas.seguimiento_lineas:
+                         #El Documento no tiene historial de tareas.
+                         raise ValidationError(('No es correcto utilizar esta función. No hay historial de tareas. '
+                                                'Seleccione tarea actual y haga click en - Enviar -'))
                 lineas = seguimiento_obj_lineas.seguimiento_lineas[0]
                 depart_id_ultima_tarea = lineas.tarea.departament_id.id
                 if lineas.tarea.name != False:
