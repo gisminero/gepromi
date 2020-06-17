@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.module.category" id="gisupdate.module_management">
+      <field name="name">GeProMi.Catastro</field>
+      <field name="description">Acceso a actualizacion de estado_legal</field>
+      <field name="sequence">6</field>
+    </record>
+
+   <record id="access_group_gisupdate_user" model="res.groups">
+     <field name="name">Usuario</field>
+     <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+     <field name="users" eval="[(4, ref('base.user_root'))]"/>
+     <field name="category_id" ref="gisupdate.module_management"/>
+    </record>
+
+    <record id="access_group_gisupdate_manager" model="res.groups">
+      <field name="name">Administrador</field>
+      <field name="implied_ids" eval="[(4, ref('gisupdate.access_group_gisupdate_user'))]"/>
+      <field name="category_id" ref="gisupdate.module_management"/>
+    </record>
+
+</odoo>

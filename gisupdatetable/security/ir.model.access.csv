@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_tablesfind_user,tablesfind.tablesfind,gisupdate.model_tablesfind_tablesfind,access_group_gisupdate_user,1,1,1,1
+access_tablesgis_user,tablesgis.tablesgis,gisupdate.model_tablesgis_tablesgis,access_group_gisupdate_user,1,1,1,1
+access_gisupdate_user,gisupdate.gisupdate,gisupdate.model_gisupdate_gisupdate,access_group_gisupdate_user,1,1,1,1
+access_gisupdatetable_user,gisupdatetable.gisupdatetable,model_gisupdatetable_gisupdatetable,access_group_gisupdate_user,1,1,1,1

@@ -1,0 +1,46 @@
+<odoo>
+  <data>
+    <record model="ir.ui.view" id="gisupdate.tablesfind_form">
+      <field name="name">tablesfind form</field>
+      <field name="model">tablesfind.tablesfind</field>
+      <field name="arch" type="xml">
+      <form string="Actualizar Datos del Registro Catastral Minero">
+        <header>
+
+        <separator string="Actualizar" colspan="4"/>
+        </header>
+
+ <field name="expediente"/>
+  <field name="titular"/>
+   <field name="mineral"/>
+    <field name="estado_legal"/>
+
+      </form>
+      </field>
+    </record>
+
+
+
+    <record model="ir.ui.view" id="gisupdate.tablesfind_list">
+      <field name="name">tablesfind list</field>
+      <field name="model">tablesfind.tablesfind</field>
+      <field name="arch" type="xml">
+        <tree>
+  <field name="expediente"/>
+  <field name="titular"/>
+   <field name="mineral"/>
+    <field name="estado_legal"/>
+
+        </tree>
+      </field>
+    </record>
+
+    <!-- actions opening views on models -->
+    <!--     -->
+    <record model="ir.actions.act_window" id="gisupdate.tablesfind_action_window">
+      <field name="name">tablesfind window</field>
+      <field name="res_model">tablesfind.tablesfind</field>
+      <field name="view_mode">tree, form</field>  <!-- SE SACO LA VISTA tree, -->
+    </record>
+</data>
+</odoo>

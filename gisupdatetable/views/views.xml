@@ -1,0 +1,93 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+    <!--     -->
+    <record model="ir.ui.view" id="gisupdatetable.list">
+      <field name="name">Listado de Registros</field>
+      <field name="model">gisupdatetable.gisupdatetable</field>
+      <field name="arch" type="xml">
+        <tree>
+      <!--   <field name="id" string="iD DE ODOO"/>  -->
+        <field name="id_gis"/>
+          <field name="name"/>
+          <field name="nombre"/>
+          <field name="titular"/>
+          <field name="mineral"/>
+          <field name="estado_legal_actual"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="gisupdatetable.form">
+      <field name="name">Formulario de Actualizacion</field>
+      <field name="model">gisupdatetable.gisupdatetable</field>
+      <field name="arch" type="xml">
+      <form string="Actualizar Datos del Registro Catastral Minero">
+        <header>
+        <!--     <separator string="TABLA" colspan="4"/> -->
+                    <field name="tabla" string="Tabla: "/>
+
+        </header>
+    <group>
+   <!--  <field name="id" string="iD DE ODOO"/>  -->
+    <field name="id_gis"/>
+          <field name="name"/>
+          <field name="nombre"/>
+          <field name="titular"/>
+          <field name="mineral"/>
+          <field name="estado_legal_actual"/>
+
+    </group>
+
+    <group>
+          <field name="estado_legal" on_change="setStatus(tabla, id_gis, estado_legal)"/>
+     </group>
+
+
+      </form>
+      </field>
+    </record>
+
+
+    <!-- actions opening views on models -->
+    <!--      -->
+    <record model="ir.actions.act_window" id="gisupdatetable.action_window">
+      <field name="name">Actualizacion</field>
+      <field name="res_model">gisupdatetable.gisupdatetable</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <!-- server action to the one above -->
+    <!--
+    <record model="ir.actions.server" id="gisupdatetable.action_server">
+      <field name="name">gisupdatetable server</field>
+      <field name="model_id" ref="model_gisupdatetable_gisupdatetable"/>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": self._name,
+        }
+      </field>
+    </record>
+    -->
+
+    <!-- Top menu item -->
+    <!--
+    <menuitem name="gisupdatetable" id="gisupdatetable.menu_root"/>
+ -->
+    <!-- menu categories -->
+    <!--
+    <menuitem name="Nombre" id="gisupdatetable.menu_1" parent="gisupdate.menu_root"/>
+    <menuitem name="Menu 2" id="gisupdatetable.menu_2" parent="gisupdatetable.menu_root"/>
+    -->
+    <!-- actions -->
+    <!--
+    <menuitem name="Ultima Tabla Cargada" id="gisupdatetable.menu_1_list" parent="gisupdatetable.menu_1"
+              action="gisupdatetable.action_window"/>
+    <menuitem name="Server to list" id="gisupdatetable" parent="gisupdatetable.menu_2"
+              action="gisupdatetable.action_server"/>
+    -->
+  </data>
+</odoo>

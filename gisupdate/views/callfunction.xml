@@ -1,0 +1,6 @@
+<openerp>
+<data>
+
+ <function model="tablesgis.tablesgis" name="loadTableNames"/>
+</data>
+</openerp>

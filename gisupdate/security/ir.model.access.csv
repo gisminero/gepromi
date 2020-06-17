@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_gisupdate_user,gisupdate.gisupdate,model_gisupdate_gisupdate,access_group_gisupdate_user,1,1,1,1
+access_gisupdate_manager,gisupdate.gisupdate,model_gisupdate_gisupdate,access_group_gisupdate_manager,1,1,1,1
+access_gisupdate_tablegis_user,tablesgis.tablesgis,model_tablesgis_tablesgis,access_group_gisupdate_user,1,0,0,0
+access_gisupdate_tablegis_manager,tablesgis.tablesgis,model_tablesgis_tablesgis,access_group_gisupdate_manager,1,1,1,1
+access_gisupdate_estado_user,estado.legal,estado_legal.model_estado_legal_estado_legal,access_group_gisupdate_user,1,0,0,0
+access_gisupdate_estado_manager,estado.legal,estado_legal.model_estado_legal_estado_legal,access_group_gisupdate_manager,1,1,1,1

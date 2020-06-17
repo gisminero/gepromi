@@ -1,0 +1,95 @@
+<odoo>
+  <data>
+
+
+
+
+
+
+
+
+    <!-- explicit list view definition -->
+
+    <record model="ir.ui.view" id="gisupdate.list">
+      <field name="name">gisupdate list</field>
+      <field name="model">gisupdate.gisupdate</field>
+      <field name="arch" type="xml">
+        <tree>
+
+
+        </tree>
+      </field>
+    </record>
+
+
+    <record model="ir.ui.view" id="gisupdate.form">
+      <field name="name">Actualizacion</field>
+      <field name="model">gisupdate.gisupdate</field>
+      <field name="arch" type="xml">
+      <form string="Actualizar Datos del Registro Catastral Minero">
+        <header>
+
+        <separator string="Seleccione la Tabla" colspan="4"/>
+        </header>
+
+     <!--       on_change="callResult(id, expte, tabla, context)"  -->
+        <field name="tabla" on_change="callTabla(tabla)"
+        context="{'id_tabla': tabla}"/>
+
+
+
+     <button string="Continuar con la busqueda"
+     type="object" name="callVista" class="oe_highlight" context="{'id_tabla': tabla}"/>
+
+
+      </form>
+      </field>
+    </record>
+
+
+    <!-- actions opening views on models -->
+    <!--     -->
+    <record model="ir.actions.act_window" id="gisupdate.action_window">
+      <field name="name">gisupdate window</field>
+      <field name="res_model">gisupdate.gisupdate</field>
+      <field name="view_mode">form</field>  <!-- SE SACO LA VISTA tree, -->
+    </record>
+
+
+    <!-- server action to the one above -->
+    <!--
+    <record model="ir.actions.server" id="gisupdate.action_server">
+      <field name="name">gisupdate server</field>
+      <field name="model_id" ref="model_gisupdate_gisupdate"/>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": self._name,
+        }
+      </field>
+    </record>
+    -->
+
+    <!-- Top menu item -->
+
+    <menuitem name="Reg.Catastral" id="gisupdate.menu_root" sequence="2"/>
+    <!--
+        <menuitem name="GeProMi" id="gepromi.menu_root"/>
+    -->
+    <!-- menu categories -->
+
+    <menuitem name="Actualizar" id="gisupdate.menu_1" parent="gisupdate.menu_root"/>
+    <!--
+    <menuitem name="Menu 2" id="gisupdate.menu_2" parent="gisupdate.menu_root"/>
+    -->
+    <!-- actions -->
+
+    <menuitem name="Estado Legal" id="gisupdate.menu_1_list" parent="gisupdate.menu_1"
+              action="gisupdate.action_window"/>
+    <!--
+    <menuitem name="Server to list" id="gisupdate" parent="gisupdate.menu_2"
+              action="gisupdate.action_server"/>
+    -->
+  </data>
+</odoo>
