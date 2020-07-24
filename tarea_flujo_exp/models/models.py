@@ -176,15 +176,17 @@ class seguimiento(models.Model):
                 nube_id = self.buscar_nube()
                 expte_obj = self.env['expediente.expediente'].browse(self.expediente_id.id)
                 id_ubicacion_actual = expte_obj.ubicacion_actual.id
+                if id_ubicacion_actual != nube_id:
+                    self.pase_ofic_correctivo(expte_obj.id, id_ubicacion_actual, nube_id)
+                self.eliminar_lineas_seguimiento(expte_obj.id)
+                print(("AHORA EL SEGUNDO INTENTO DE PASAR A BORRADOR"))
+                # expte_obj.write({"state": 'draft'})
                 expte_obj.write({'estado_legal_actual': "",
                                  "ubicacion_actual": nube_id,
                                  "oficina_destino": False,
                                  "tarea_actual": False,
-                                 "state": "draft",
+                                 "state": 'draft',
                                  "en_flujo": False})
-                if id_ubicacion_actual != nube_id:
-                    self.pase_ofic_correctivo(expte_obj.id, id_ubicacion_actual, nube_id)
-                self.eliminar_lineas_seguimiento(expte_obj.id)
                 return True
 
         def ingresa_tarea_actual(self, expte_id, tarea_actual_obj, tarea_proxima_obj):
