@@ -241,7 +241,7 @@ class expediente(models.Model):
 
         tarea_actual = fields.Many2one('tarea.tarea', 'Tarea Actual', required=False, readonly=True)
         tarea_proxima = fields.Many2one('tarea.tarea', 'Tarea Prox.', required=False, readonly=False)
-        en_flujo = fields.Boolean('En Flujo', required=False, readonly=True)
+        en_flujo = fields.Boolean('En Flujo', required=False, readonly=False)
 
         @api.multi
         def _get_current_id(self):
@@ -507,7 +507,7 @@ class expediente(models.Model):
                 flujo_obj_encontrado = obj_flujo.search([('name', '=', proced_actual_id)], limit=1)
                 #####FIN BUSCAR EL FLUJO DEL PROCEDIMIENTO ACTUAL
                 obj_flujolinea = self.env['tarea_flujo.flujolinea']
-                flujolinea_obj_encontrado = obj_flujolinea.search([('flujo_id', '=', flujo_obj_encontrado.id), ('tarea_padre', '=', tarea_id)], limit=1)
+                flujolinea_obj_encontrado = obj_flujolinea.search([('flujo_id', '=', flujo_obj_encontrado.id), ('tarea', '=', tarea_id)], limit=1)
                 if flujolinea_obj_encontrado:
                         return True
                 else:

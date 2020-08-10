@@ -84,6 +84,7 @@ class expediente(models.Model):
     solicitante = fields.Char('Solicitante', required=True)
     folios = fields.Integer('Folios', help='', default=1)
     estado_legal_actual = fields.Char('Estado Legal Actual', required=False, readonly=True)
+    estado_legal_actual_id = fields.Many2one('estado_legal.estado_legal', string='Estado Legal Actual', required=False)
     mineral = fields.Many2many('mineral',string='Mineral',required=False, domain=[('active', '=', True)])
     nombre_pedimento = fields.Char('Nombre Pedimento', required=False)
     user_creador_id = fields.Many2one('res.users','Creado por', required=False, readonly=True, default=default_user_id)
