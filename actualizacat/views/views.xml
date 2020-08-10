@@ -1,0 +1,24 @@
+<odoo>
+  <data>
+
+    <record model="ir.ui.view" id="actualizacat.list">
+      <field name="name">Listado de Correspondencia para la Actualizacion del Registro Catastral</field>
+      <field name="model">actualizacat.actualizacat</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="procedimiento_id"/>
+          <field name="tablacat"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="actualizacat.lista_config">
+      <field name="name">Configuracion de Actualizacion de Catastro Minero</field>
+      <field name="res_model">actualizacat.actualizacat</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+     <menuitem name="Actualiza Cat." id="actualizacat.menu" parent="gepromi.config"  action="actualizacat.lista_config"/>
+
+  </data>
+</odoo>
