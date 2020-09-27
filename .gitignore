@@ -23,6 +23,9 @@
 # .nfs files are created when an open file is removed but is still being accessed
 .pyc*
 
+# .xls* files are created when an open file is removed but is still being accessed
+.xls*
+
 # End of https://www.gitignore.io/api/linux
 
 /z_notificaciones_preSOLO_JUJUY.zip
