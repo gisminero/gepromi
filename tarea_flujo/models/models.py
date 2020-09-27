@@ -7,6 +7,8 @@ from unidecode import unidecode
 import csv
 import base64
 
+import itertools
+
 class flujolinea(models.Model):
     _name = 'tarea_flujo.flujolinea'
     _description = 'Lineas del Flujo de Tareas'
@@ -114,21 +116,9 @@ class flujo(models.Model):
         global proc_ini
         proc_ini=procedim.iniciado
 
-    def crear_archivo(self,dic):
-#        newfile= open('/opt/odoo/server/addonsgis/tarea_flujo/models/filedatos.csv','wb')
-        with open('/opt/odoo/server/addonsgis/tarea_flujo/models/filedatos.csv','wb') as newfile:
-            fieldnames=[['CODIGO'],['ORIGEN'],['CODIGO'],['DESTINO'],['CONDICIONES']]
-            archivo=csv.writer(newfile)
-            archivo.writerow(fieldnames)
-            for row in dic:
-                archivo.writerow(unicode (row))
-        print("EL ARCHIVO FUE CREADO")
-        descarga=self.generate_file()#llama a la función que descargará el archivo
-
-
     @api.one
     def generate_file(self,):
-        full_path = '/opt/odoo/server/addonsgis/tarea_flujo/models/filedatos.csv'
+        full_path = '/opt/odoo/server/addonsgis/tarea_flujo/models/output2020.csv'
         f = open(full_path, 'rb')
         content=f.read().encode('base64')
         return self.write({
@@ -136,9 +126,7 @@ class flujo(models.Model):
             'filebinary':unicode(content)
             })
 
-
 #    def mostrar_archivo(self):
-
 #        newfile= open('/opt/odoo/server/addonsgis/tarea_flujo/models/filedatos.csv','rb')
 #        with open('/opt/odoo/server/addonsgis/tarea_flujo/models/filedatos.csv','rb') as newfile:
 #            readfile=csv.reader(newfile,delimiter=',',quotechar=',',quoting=csv.QUOTE_MINIMAL)
@@ -146,31 +134,30 @@ class flujo(models.Model):
 #                print(unicode (row))
 #        print("LISTO")
 
+
+    def crear_archivo2(self, lista):
+        with open("/opt/odoo/server/addonsgis/tarea_flujo/models/output2020.csv", "wb") as f:
+            writer = csv.writer(f)
+            writer.writerows(itertools.izip(lista))
+
     def exportar(self):
         active_id = self.env.context.get('id_activo')
         datexp = self.env['tarea_flujo.flujolinea'].search([('flujo_id', '=', active_id)])
 #        print("DATAEXP:"+ str(datexp))
         diccionario={}
         flujostareas=[]
+        flujostareas.append("id_origen, cod_origen, nombre_origen, id_destino, cod_destino, nombre_destino, condicion")
         for row in datexp:
-            dest=row.tarea_padre.id
-            orig=row.tarea.id
-            cond=row.descrip
-            flujostareas.append([dest,orig,cond])
-#            print("LISTA:"+ str(flujostareas))
-        for i in range(len(flujostareas)):
-            flujo=flujostareas[i]
-#            print("FLUJO:"+ str(flujo))
-            lista=[]
-            for j in range(len(flujo)-1):
-                valor=flujo[j]
-                ident=self.env['tarea.tarea'].search([('id', '=',valor)])
-                cod=ident.codigo
-                dato=ident.name
-                lista.append(cod)# agrega el código de Tarea
-                lista.append(dato) # agrega campos: origen, destino
-            lista.append(flujo[len(flujo)-1]) # agrego a la lista el campo condiciones
-            diccionario[i]=lista
-            datosflujo=diccionario.values()
-        generarfile= self.crear_archivo(datosflujo)
+            orig_id=row.tarea_padre.id
+            orig_cod=row.tarea_padre.codigo
+            orig_nombre=row.tarea_padre.name
+            dest_id = row.tarea.id
+            dest_cod= row.tarea.codigo
+            dest_nombre= row.tarea.name
+            cond= unicode(row.descrip)
+            flujostareas.append('"'+str(orig_id) + '","'+ str(orig_cod) + '","'+ unidecode(orig_nombre) + '","' +
+                                str(dest_id) +'","'+ str(dest_cod) +'","'+ unidecode(dest_nombre) + '","' +
+                                unidecode(cond))
+        generarfile= self.crear_archivo2(flujostareas)
+        descarga = self.generate_file()  # llama a la función que descargará el archivo
         #ver_archivo=self.mostrar_archivo()
